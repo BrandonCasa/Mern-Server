@@ -28,7 +28,7 @@ export async function register(req, res) {
 }
 
 // A method to login a user and return their data
-export const login = async (req, res) => {
+export async function login(req, res) {
   try {
     passport.authenticate("local", (err, user, info) => {
       if (err) { throw new Error(err); }
