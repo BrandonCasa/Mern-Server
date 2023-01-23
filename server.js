@@ -10,7 +10,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import winston from "winston";
 import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/user.js";
 import { register } from "./controllers/auth.js"
+import passport from "passport";
+import session from "express-session";
 
 // Configurations
 const __filename = fileURLToPath(import.meta.url);
@@ -36,6 +39,13 @@ app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
+app.use(session({
+  resave: false,
+  saveUninitialized: true,
+  secret: process.env.SECRET
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // File Storage
 const storage = multer.diskStorage({
@@ -53,6 +63,7 @@ app.post("/auth/register", upload.single("picture"), register);
 
 // Routes
 app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
 
 // Mongoose Setup
 const PORT = process.env.PORT || 6001;

@@ -1,41 +1,44 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import passport from "passport";
 
 // Register a new user
-export const register = async (req, res) => {
+export async function register(req, res) {
   try {
     const { displayname, username, email, password, interests } = req.body;
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({
-      displayname,
-      username,
-      email,
-      password: hashedPassword,
-      interests
-    });
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    const registeredUser = await User.register({ displayname, username, email, interests }, password);
+    if (registeredUser) {
+      await passport.authenticate("local", (err, user, info) => {
+        if (err) {
+          return res.status(400).json({ msg: "Registration failed." });
+        }
+        req.logIn(user, (err) => {
+          if (err) {
+            return res.status(400).json({ msg: "Registration failed." });
+          }
+          return res.status(201).json({ user: registeredUser });
+        });
+      })(req, res);
+    } else {
+      res.status(400).json({ msg: "Registration failed." });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Logging in a user
+// A method to login a user and return their data
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    !user && res.status(400).json({ msg: "User not found" });
-
-    const validated = await bcrypt.compare(password, user.password);
-    !validated && res.status(400).json({ msg: "Wrong password" });
-
-    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    delete user.password;
-    res.status(200).json({ accessToken, user });
+    passport.authenticate("local", (err, user, info) => {
+      if (err) { throw new Error(err); }
+      if (!user) { return res.status(400).json({ msg: info.message }); }
+      req.logIn(user, (err) => {
+        if (err) { throw new Error(err); }
+        return res.status(200).json({ user });
+      });
+    })(req, res);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
-};
+}

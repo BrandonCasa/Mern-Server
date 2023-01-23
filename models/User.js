@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import passportLocalMongoose from "passport-local-mongoose";
 
 const UserSchema = new mongoose.Schema({
   displayname: {
@@ -16,15 +17,7 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    min: 2,
-    max: 50,
     unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    min: 6,
-    max: 64
   },
   picturePath: {
     type: String,
@@ -72,6 +65,9 @@ const UserSchema = new mongoose.Schema({
     ref: "UserStatusSession"
   }]
 }, { timestamps: true });
+
+// Plugin for passport-local-mongoose 
+UserSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model("User", UserSchema);
 
