@@ -33,11 +33,27 @@ export async function login(req, res) {
     passport.authenticate("local", (err, user, info) => {
       if (err) { throw new Error(err); }
       if (!user) { return res.status(400).json({ msg: info.message }); }
-      req.logIn(user, (err) => {
+      req.login(user, (err) => {
         if (err) { throw new Error(err); }
         return res.status(200).json({ user });
       });
     })(req, res);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// A method to logout a user
+export async function logout(req, res) {
+  try {
+    if (req.isAuthenticated()) {
+      req.logout((err) => {
+        if (err) { throw new Error(err); }
+        res.status(200).json({ msg: "Logout successful." });
+      });
+    } else {
+      res.status(400).json({ msg: "You are not logged in." });
+    }
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

@@ -66,7 +66,7 @@ const UserSchema = new mongoose.Schema({
   statusSessions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "UserStatusSession"
-  }]
+  }],
 }, { timestamps: true });
 
 // Plugin for passport-local-mongoose 

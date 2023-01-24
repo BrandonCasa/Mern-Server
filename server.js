@@ -14,6 +14,8 @@ import userRoutes from "./routes/user.js";
 import { register } from "./controllers/auth.js"
 import passport from "passport";
 import session from "express-session";
+import LocalStrategy from "passport-local";
+import { User } from "./models/User.js";
 
 // Configurations
 const __filename = fileURLToPath(import.meta.url);
@@ -58,6 +60,11 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage });
+
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // Routes With Files
 app.post("/auth/register", upload.single("picture"), register);
