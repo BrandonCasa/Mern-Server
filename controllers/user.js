@@ -54,7 +54,7 @@ export const setInterests = async (req, res) => {
   }
 }
 
-// Clean up a user's friend requests by removing any that are invalid
+// Clean up a user's friend requests by removing any that are not mutual
 export const cleanFriendRequests = async (_id) => {
   try {
     const user = await User.findById(_id);
@@ -83,7 +83,7 @@ export const cleanFriendRequests = async (_id) => {
   }
 }
 
-// Clean up a user's friend list by removing any that are invalid or not mutual
+// Clean up a user's friend list by removing any that are not mutual
 export const cleanFriends = async (_id) => {
   try {
     const user = await User.findById(_id);
