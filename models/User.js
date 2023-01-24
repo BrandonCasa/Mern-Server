@@ -5,6 +5,12 @@ const UserSchema = new mongoose.Schema({
   id: {
     type: String,
   },
+  displayname: {
+    type: String,
+    required: true,
+    min: 3,
+    max: 20,
+  },
   username: {
     type: String,
     required: true,
