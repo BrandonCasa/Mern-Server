@@ -13,7 +13,7 @@ router.get("/profile/:userId", getUser);
 router.get("/me/changename", verifyToken, setDisplayName);
 router.get("/me/changeaboutme", verifyToken, setAboutMe);
 router.get("/me/changeinterests", verifyToken, setInterests);
-router.patch("/friend/add/:friendId", verifyToken, addFriend);
+router.patch("/friend/send/:friendId", verifyToken, addFriend);
 router.patch("/friend/remove/:friendId", verifyToken, removeFriend);
 router.patch("/friend/accept/:friendId", verifyToken, acceptFriendRequest);
 router.patch("/friend/decline/:friendId", verifyToken, declineFriendRequest);

@@ -127,9 +127,9 @@ export const addFriend = async (req, res) => {
     if (friend.friendRequestsIn.includes(_id)) {
       return res.status(400).json({ message: "This user has already sent you a friend request" });
     }
-    await User.findByIdAndUpdate(_id, { friendRequestsOut: [...user.friendRequestsOut, friendId] })
-    await User.findByIdAndUpdate(friendId, { friendRequestsIn: [...friend.friendRequestsIn, _id.toString()] })
-    return res.status(200).json({ message: "Friend request sent" });
+    const newUser = await User.findByIdAndUpdate(_id, { friendRequestsOut: [...user.friendRequestsOut, friendId] }, { new: true })
+    await User.findByIdAndUpdate(friendId, { friendRequestsIn: [...friend.friendRequestsIn, _id.toString()] }, { new: true })
+    return res.status(200).json({ message: "Friend request sent", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -153,9 +153,9 @@ export const acceptFriendRequest = async (req, res) => {
     if (!user.friendRequestsIn.includes(friendId)) {
       return res.status(400).json({ message: "You do not have a friend request from this user" });
     }
-    await User.findByIdAndUpdate(_id, { friendRequestsIn: user.friendRequestsIn.filter(id => id !== friendId), friends: [...user.friends, friendId] })
-    await User.findByIdAndUpdate(friendId, { friendRequestsOut: friend.friendRequestsOut.filter(id => id !== _id.toString()), friends: [...friend.friends, _id.toString()] })
-    return res.status(200).json({ message: "Friend request accepted" });
+    const newUser = await User.findByIdAndUpdate(_id, { friendRequestsIn: user.friendRequestsIn.filter(id => id !== friendId), friends: [...user.friends, friendId] }, { new: true })
+    await User.findByIdAndUpdate(friendId, { friendRequestsOut: friend.friendRequestsOut.filter(id => id !== _id.toString()), friends: [...friend.friends, _id.toString()] }, { new: true })
+    return res.status(200).json({ message: "Friend request accepted", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -179,9 +179,9 @@ export const declineFriendRequest = async (req, res) => {
     if (!user.friendRequestsIn.includes(friendId)) {
       return res.status(400).json({ message: "You do not have a friend request from this user" });
     }
-    await User.findByIdAndUpdate(_id, { friendRequestsIn: user.friendRequestsIn.filter(id => id !== friendId) })
-    await User.findByIdAndUpdate(friendId, { friendRequestsOut: friend.friendRequestsOut.filter(id => id !== _id.toString()) })
-    return res.status(200).json({ message: "Friend request declined" });
+    const newUser = await User.findByIdAndUpdate(_id, { friendRequestsIn: user.friendRequestsIn.filter(id => id !== friendId) }, { new: true })
+    await User.findByIdAndUpdate(friendId, { friendRequestsOut: friend.friendRequestsOut.filter(id => id !== _id.toString()) }, { new: true })
+    return res.status(200).json({ message: "Friend request declined", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -205,9 +205,9 @@ export const cancelFriendRequest = async (req, res) => {
     if (!user.friendRequestsOut.includes(friendId)) {
       return res.status(400).json({ message: "You do not have a friend request to this user" });
     }
-    await User.findByIdAndUpdate(_id, { friendRequestsOut: user.friendRequestsOut.filter(id => id !== friendId) })
-    await User.findByIdAndUpdate(friendId, { friendRequestsIn: friend.friendRequestsIn.filter(id => id !== _id.toString()) })
-    return res.status(200).json({ message: "Friend request canceled" });
+    const newUser = await User.findByIdAndUpdate(_id, { friendRequestsOut: user.friendRequestsOut.filter(id => id !== friendId) }, { new: true })
+    await User.findByIdAndUpdate(friendId, { friendRequestsIn: friend.friendRequestsIn.filter(id => id !== _id.toString()) }, { new: true })
+    return res.status(200).json({ message: "Friend request canceled", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -231,14 +231,9 @@ export const removeFriend = async (req, res) => {
     if (!user.friends.includes(friendId)) {
       return res.status(400).json({ message: "You are not friends with this user" });
     }
-    if (!friend.friends.includes(_id.toString())) {
-      // Remove friend from current user's friends list if friend is not friends with current user
-      await User.findByIdAndUpdate(_id, { friends: user.friends.filter(id => id !== friendId) })
-      return res.status(400).json({ message: "You are not friends with this user" });
-    }
-    await User.findByIdAndUpdate(_id, { friends: user.friends.filter(id => id !== friendId) })
-    await User.findByIdAndUpdate(friendId, { friends: friend.friends.filter(id => id !== _id.toString()) })
-    return res.status(200).json({ message: "Friend removed" });
+    const newUser = await User.findByIdAndUpdate(_id, { friends: user.friends.filter(id => id !== friendId) }, { new: true })
+    await User.findByIdAndUpdate(friendId, { friends: friend.friends.filter(id => id !== _id.toString()) }, { new: true })
+    return res.status(200).json({ message: "Friend removed", user: newUser });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
