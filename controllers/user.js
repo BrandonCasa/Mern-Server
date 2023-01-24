@@ -2,8 +2,8 @@ import { User } from "../models/User.js";
 import mongoose from "mongoose";
 
 const privateFieldsArr = ["username", "email", "friendRequestsIn", "friendRequestsOut", "servers", "activitySessions", "statusSessions", "password", "__v", "updatedAt"];
-const privateFieldsString = ("=" + privateFieldsArr.join(" ")).replace(/ /g, " -").replace("=", "-");
-
+const privateFieldsString = "-" + privateFieldsArr.join(" -")
+console.log(privateFieldsString)
 // Get a user by ID
 export const getUser = async (req, res) => {
   try {
