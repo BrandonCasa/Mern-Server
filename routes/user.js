@@ -3,20 +3,14 @@ import { getUser } from "../controllers/user.js";
 import { verifyToken } from "../middleware/auth.js";
 import { User } from "../models/User.js";
 import passport from "passport";
+import LocalStrategy from "passport-local";
 
 const router = express.Router();
 
-passport.use(User.createStrategy());
+passport.use(new LocalStrategy(User.authenticate()));
 
-passport.serializeUser(function (user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function (id, done) {
-  User.findById(id, function (err, user) {
-    done(err, user);
-  });
-})
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // Read
 router.get("/profile/:userId", getUser);
